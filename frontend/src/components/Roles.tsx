@@ -142,7 +142,7 @@ function Roles() {
                             }}
                             className="text-blue-600 hover:underline"
                           >
-                            Update
+                            Mise à jour
                           </button>
                         </td>
                         <td className="px-4 py-2 text-center">
@@ -150,7 +150,7 @@ function Roles() {
                             onClick={() => handleDelete(d.id)}
                             className="text-red-600 hover:underline"
                           >
-                            Delete
+                            Supprimer
                           </button>
                         </td>
                       </tr>
@@ -181,10 +181,10 @@ function Roles() {
         />
         <div className="flex justify-end gap-2">
           <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">
-            Cancel
+            Annuler
           </button>
           <button onClick={handleAddRole} className="px-4 py-2 bg-blue-600 text-white rounded">
-            Save
+            Enregistrer
           </button>
         </div>
       </Modal>
@@ -201,10 +201,10 @@ function Roles() {
         />
         <div className="flex justify-end gap-2">
           <button onClick={() => setShowUpdateModal(false)} className="px-4 py-2 bg-gray-200 rounded">
-            Cancel
+            Annuler
           </button>
           <button onClick={handleUpdateRole} className="px-4 py-2 bg-blue-600 text-white rounded">
-            Update
+            Mise à jour
           </button>
         </div>
       </Modal>

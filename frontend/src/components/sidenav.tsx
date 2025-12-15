@@ -19,8 +19,8 @@ function Sidenav() {
       { to: "/sinistres", icon: "fa-solid fa-car-burst", label: "Sinistres" },
       { to: "/documents", icon: "fa-solid fa-file", label: "Documents" },
       { to: "/paiements", icon: "fa-solid fa-credit-card", label: "Paiements" },
-      { to: "/expertise", icon: "fa-solid fa-magnifying-glass", label: "Expertise" },
-      { to: "/experts", icon: "fa-solid fa-user-tie", label: "Experts" },
+      { to: "/expertises", icon: "fa-solid fa-magnifying-glass", label: "Expertises" },
+      // { to: "/experts", icon: "fa-solid fa-user-tie", label: "Experts" },
       { to: "/roles", icon: "fa-solid fa-user-shield", label: "Rôles" },
       { to: "/users", icon: "fa-solid fa-users", label: "Utilisateurs" },
     ],
@@ -29,7 +29,7 @@ function Sidenav() {
       { to: "/sinistre", icon: "fa-solid fa-car-burst", label: "Sinistre" },
       { to: "/document", icon: "fa-solid fa-file", label: "Document" },
       // { to: "/paiements", icon: "fa-solid fa-credit-card", label: "Paiements" },
-      { to: "/expertises", icon: "fa-solid fa-magnifying-glass", label: "Expertises" },
+      { to: "/expertise", icon: "fa-solid fa-magnifying-glass", label: "Expertises" },
     ],
   }
 

@@ -5,9 +5,10 @@ import axios from "axios"
 
 interface Sinistre {
   id: number
+  Numero_Sinistre: string
   utilisateur_id: number
   police_id: number
-  expert?: number            // <- added optional expert field
+  expert?: number
   date_declaration: string
   type: string
   description: string
@@ -53,13 +54,12 @@ function Sinistres() {
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [selectedSinistre, setSelectedSinistre] = useState<Sinistre | null>(null)
 
-  // search state
   const [search, setSearch] = useState("")
 
-  // form state
+  const [NumeroSinistre, setNumeroSinistre] = useState("")
   const [utilisateurId, setUtilisateurId] = useState("")
   const [policeId, setPoliceId] = useState("")
-  const [expert, setExpert] = useState("") // <-- new expert state (stores user id)
+  const [expert, setExpert] = useState("")
   const [dateDeclaration, setDateDeclaration] = useState("")
   const [type, setType] = useState("")
   const [description, setDescription] = useState("")
@@ -103,9 +103,10 @@ function Sinistres() {
   const handleAddSinistre = async () => {
     try {
       await axios.post("http://localhost:3000/createsinistres", {
+        Numero_Sinistre: NumeroSinistre,
         utilisateur_id: utilisateurId,
         police_id: policeId,
-        expert: expert, // send expert user id as foreign key
+        expert: expert,
         date_declaration: dateDeclaration,
         type,
         description,
@@ -125,9 +126,10 @@ function Sinistres() {
     if (!selectedSinistre) return
     try {
       await axios.put(`http://localhost:3000/updatesinistres/${selectedSinistre.id}`, {
+        Numero_Sinistre: NumeroSinistre,
         utilisateur_id: utilisateurId,
         police_id: policeId,
-        expert: expert, // include expert on update
+        expert: expert,
         date_declaration: dateDeclaration,
         type,
         description,
@@ -145,9 +147,10 @@ function Sinistres() {
   }
 
   const clearForm = () => {
+    setNumeroSinistre("")
     setUtilisateurId("")
     setPoliceId("")
-    setExpert("")              // clear expert
+    setExpert("")
     setDateDeclaration("")
     setType("")
     setDescription("")
@@ -156,10 +159,9 @@ function Sinistres() {
     setMontantApprouve("")
   }
 
-  // ✅ filtered sinistres
   const filteredSinistres = sinistres.filter((s) => {
     const clientName = users.find(u => u.id === s.utilisateur_id)?.nom || ""
-    const policeType = polices.find(p => p.id === s.police_id)?.type || ""
+    const policeType = polices.find(p => p.id === s.police_id)?.numero_police || ""
 
     return (
       s.id.toString().includes(search.toLowerCase()) ||
@@ -177,7 +179,6 @@ function Sinistres() {
       <div className="bg-gray-100 h-screen w-screen">
         <Topbar />
         <div className="p-3 m-5 mt-1">
-          {/* Header */}
           <div className="flex justify-between items-center mt-2 ml-2 mb-5">
             <div>
               <h1 className="font-bold text-2xl">Gestion Des Sinistres</h1>
@@ -190,8 +191,6 @@ function Sinistres() {
               + Nouveau Sinistre
             </button>
           </div>
-
-          {/* Search Bar */}
               
           <div className="flex justify-between items-center mb-4">
             <input
@@ -203,7 +202,6 @@ function Sinistres() {
             />
           </div>
 
-          {/* Table */}
           <div className="w-full h-110 mt-2 bg-white rounded-lg flex flex-col">
             <h1 className="font-medium text-xl px-6 py-4">Liste Des Sinistres</h1>
             <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -211,9 +209,10 @@ function Sinistres() {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-2">#</th>
-                    <th className="px-4 py-2">Sinistre ID</th>
+                    <th className="px-4 py-2">Numero du Sinistre</th>
                     <th className="px-4 py-2">Client</th>
                     <th className="px-4 py-2">Police</th>
+                    <th className="px-4 py-2">Expert</th>
                     <th className="px-4 py-2">Date Déclaration</th>
                     <th className="px-4 py-2">Type</th>
                     <th className="px-4 py-2">Description</th>
@@ -227,9 +226,10 @@ function Sinistres() {
                   {filteredSinistres.map((s, i) => (
                     <tr key={s.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{i + 1}</td>
-                      <td className="px-4 py-2">{s.id}</td>
+                      <td className="px-4 py-2">{s.Numero_Sinistre}</td>
                       <td className="px-4 py-2">{users.find(u => u.id === s.utilisateur_id)?.nom || s.utilisateur_id}</td>
-                      <td className="px-4 py-2">{polices.find(p => p.id === s.police_id)?.type || s.police_id}</td>
+                      <td className="px-4 py-2">{polices.find(p => p.id === s.police_id)?.numero_police || s.police_id}</td>
+                      <td className="px-4 py-2">{users.find(u => u.id === s.expert)?.nom || s.expert || "-"}</td>
                       <td className="px-4 py-2">{s.date_declaration}</td>
                       <td className="px-4 py-2">{s.type}</td>
                       <td className="px-4 py-2">{s.description}</td>
@@ -240,9 +240,10 @@ function Sinistres() {
                         <button
                           onClick={() => {
                             setSelectedSinistre(s)
+                            setNumeroSinistre(s.Numero_Sinistre)
                             setUtilisateurId(String(s.utilisateur_id))
                             setPoliceId(String(s.police_id))
-                            setExpert(s.expert ? String(s.expert) : "") // populate expert when updating
+                            setExpert(s.expert ? String(s.expert) : "")
                             setDateDeclaration(s.date_declaration)
                             setType(s.type)
                             setDescription(s.description)
@@ -253,19 +254,19 @@ function Sinistres() {
                           }}
                           className="text-blue-600 hover:underline"
                         >
-                          Update
+                          Mise à jour
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
                         <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:underline">
-                          Delete
+                          Supprimer
                         </button>
                       </td>
                     </tr>
                   ))}
                   {filteredSinistres.length === 0 && (
                     <tr>
-                      <td colSpan={11} className="text-center py-4 text-gray-500">Aucun sinistre trouvé</td>
+                      <td colSpan={13} className="text-center py-4 text-gray-500">Aucun sinistre trouvé</td>
                     </tr>
                   )}
                 </tbody>
@@ -275,24 +276,23 @@ function Sinistres() {
         </div>
       </div>
 
-      {/* Add Modal */}
-       <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)}>
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)}>
          <h2 className="text-xl font-bold mb-4">Ajouter un Sinistre</h2>
 
-         <select
+        <input type="text" placeholder="Numero du Sinistre" className="w-full p-2 border rounded mb-2" value={NumeroSinistre} onChange={e => setNumeroSinistre(e.target.value)} />
+        <select
           className="w-full p-2 border rounded mb-2"
           value={utilisateurId}
           onChange={e => setUtilisateurId(e.target.value)}
         >
            <option value="">Sélectionner un Client</option>
            {users
-             .filter(u => u.role_id === 6) // ✅ only clients
+             .filter(u => u.role_id === 6)
              .map(u => (
                <option key={u.id} value={u.id}>{u.nom}</option>
              ))}
          </select>
 
-         {/* Expert select: fetches from users but only role_id === 8 */}
          <select
            className="w-full p-2 border rounded mb-2"
            value={expert}
@@ -309,7 +309,7 @@ function Sinistres() {
          <select className="w-full p-2 border rounded mb-2" value={policeId} onChange={e => setPoliceId(e.target.value)}>
            <option value="">Sélectionner une Police</option>
            {polices.map(p => (
-             <option key={p.id} value={p.id}>{p.type}</option>
+             <option key={p.id} value={p.id}>{p.numero_police}</option>
            ))}
          </select>
 
@@ -330,15 +330,15 @@ function Sinistres() {
          <input type="number" placeholder="Montant Approuvé" className="w-full p-2 border rounded mb-4" value={montantApprouve} onChange={e => setMontantApprouve(e.target.value)} />
 
          <div className="flex justify-end gap-2">
-           <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-           <button onClick={handleAddSinistre} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+           <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+           <button onClick={handleAddSinistre} className="px-4 py-2 bg-blue-600 text-white rounded">Enregistrer</button>
          </div>
        </Modal>
 
-       {/* Update Modal */}
        <Modal isOpen={showUpdateModal} onClose={() => setShowUpdateModal(false)}>
          <h2 className="text-xl font-bold mb-4">Mettre à jour le Sinistre</h2>
 
+        <input type="text" placeholder="Numero du Sinistre" className="w-full p-2 border rounded mb-2" value={NumeroSinistre} onChange={e => setNumeroSinistre(e.target.value)} />
          <select
            className="w-full p-2 border rounded mb-2"
            value={utilisateurId}
@@ -346,13 +346,12 @@ function Sinistres() {
          >
            <option value="">Sélectionner un Client</option>
            {users
-             .filter(u => u.role_id === 6) // ✅ only clients
+             .filter(u => u.role_id === 6)
              .map(u => (
                <option key={u.id} value={u.id}>{u.nom}</option>
              ))}
          </select>
 
-         {/* Expert select in update form */}
          <select
            className="w-full p-2 border rounded mb-2"
            value={expert}
@@ -369,7 +368,7 @@ function Sinistres() {
          <select className="w-full p-2 border rounded mb-2" value={policeId} onChange={e => setPoliceId(e.target.value)}>
            <option value="">Sélectionner une Police</option>
            {polices.map(p => (
-             <option key={p.id} value={p.id}>{p.type}</option>
+             <option key={p.id} value={p.id}>{p.numero_police}</option>
            ))}
          </select>
 
@@ -390,8 +389,8 @@ function Sinistres() {
          <input type="number" placeholder="Montant Approuvé" className="w-full p-2 border rounded mb-4" value={montantApprouve} onChange={e => setMontantApprouve(e.target.value)} />
 
          <div className="flex justify-end gap-2">
-           <button onClick={() => setShowUpdateModal(false)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-           <button onClick={handleUpdateSinistre} className="px-4 py-2 bg-blue-600 text-white rounded">Update</button>
+           <button onClick={() => setShowUpdateModal(false)} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+           <button onClick={handleUpdateSinistre} className="px-4 py-2 bg-blue-600 text-white rounded">Mise à jour</button>
          </div>
        </Modal>
      </div>

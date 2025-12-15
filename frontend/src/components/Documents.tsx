@@ -6,15 +6,24 @@ import axios from "axios"
 interface Document {
   id: number
   sinistre_id: number
+  expert: number
   nom_fichier: string
   type_document: string
-  contenu_fichier: string
+  contenu_fichier: any
   date_upload: string
 }
 
+
 interface Sinistre {
   id: number
+  Numero_Sinistre: string
   type: string
+}
+
+interface User {
+  id: number
+  nom: string
+  role_id: number
 }
 
 function Modal({
@@ -45,23 +54,24 @@ function Modal({
 function Documents() {
   const [data, setData] = useState<Document[]>([])
   const [sinistres, setSinistres] = useState<Sinistre[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [showAddModal, setShowAddModal] = useState(false)
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
 
-  // form state
   const [sinistreId, setSinistreId] = useState("")
+  const [expertId, setExpertId] = useState("")
   const [nomFichier, setNomFichier] = useState("")
   const [typeDocument, setTypeDocument] = useState("")
   const [contenuFichier, setContenuFichier] = useState<File | null>(null)
   const [dateUpload, setDateUpload] = useState("")
 
-  // search state
   const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     fetchDocuments()
     fetchSinistres()
+    fetchUsers()
   }, [])
 
   const fetchDocuments = () => {
@@ -78,6 +88,13 @@ function Documents() {
       .catch((err) => console.log(err))
   }
 
+  const fetchUsers = () => {
+    axios
+      .get("http://localhost:3000/viewuser")
+      .then((res) => setUsers(res.data.filter((u: User) => u.role_id === 8)))
+      .catch((err) => console.log(err))
+  }
+
   const handleDelete = async (id: number) => {
     try {
       await axios.delete(`http://localhost:3000/deletedocuments/${id}`)
@@ -91,6 +108,7 @@ function Documents() {
     try {
       const formData = new FormData()
       formData.append("sinistre_id", sinistreId)
+      formData.append("expert", expertId)
       formData.append("nom_fichier", nomFichier)
       formData.append("type_document", typeDocument)
       if (contenuFichier) {
@@ -115,6 +133,7 @@ function Documents() {
     try {
       const formData = new FormData()
       formData.append("sinistre_id", sinistreId)
+      formData.append("expert", expertId)
       formData.append("nom_fichier", nomFichier)
       formData.append("type_document", typeDocument)
       if (contenuFichier) {
@@ -157,13 +176,13 @@ function Documents() {
 
   const clearForm = () => {
     setSinistreId("")
+    setExpertId("")
     setNomFichier("")
     setTypeDocument("")
     setContenuFichier(null)
     setDateUpload("")
   }
 
-  // Preview helper
   const renderFilePreview = () => {
     if (!contenuFichier) return null
     const fileURL = URL.createObjectURL(contenuFichier)
@@ -181,14 +200,17 @@ function Documents() {
     }
   }
 
-  // filtered documents based on search
-  const filteredData = data.filter(
-    (d) =>
+  const filteredData = data.filter((d) => {
+    const Numero_Sinistre = sinistres.find(s => s.id === d.sinistre_id)?.Numero_Sinistre || ""
+
+    return (
       d.nom_fichier.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      Numero_Sinistre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.type_document.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.date_upload.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.sinistre_id.toString().includes(searchTerm)
-  )
+    )
+  })
 
   return (
     <div className="flex">
@@ -196,7 +218,6 @@ function Documents() {
       <div className="bg-gray-100 h-screen w-screen">
         <Topbar />
         <div className="p-3 m-5 mt-1">
-          {/* Header */}
           <div className="flex justify-between items-center mt-2 ml-2 mb-5">
             <div>
               <h1 className="font-bold text-2xl">Gestion Des Documents</h1>
@@ -210,7 +231,6 @@ function Documents() {
             </button>
           </div>
 
-          {/* Search Bar */}
           <div className="flex justify-between items-center mb-4">
             <input
               type="text"
@@ -221,7 +241,6 @@ function Documents() {
             />
           </div>
 
-          {/* Table */}
           <div className="w-full h-110 mt-6 bg-white rounded-lg flex flex-col">
             <h1 className="font-medium text-xl px-6 py-4">Liste Des Documents</h1>
             <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -229,11 +248,11 @@ function Documents() {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-2 text-left">#</th>
-                    <th className="px-4 py-2 text-left">Sinistre ID</th>
+                    <th className="px-4 py-2 text-left">Numero du Sinistre</th>
+                    <th className="px-4 py-2 text-left">Expert</th>
                     <th className="px-4 py-2 text-left">Nom Fichier</th>
                     <th className="px-4 py-2 text-left">Type du Fichier</th>
                     <th className="px-4 py-2 text-left">Date de téléchargement</th>
-                    <th className="px-4 py-2 text-left">Contenu du Fichier</th>
                     <th className="px-4 py-2 text-center" colSpan={3}>
                       Actions
                     </th>
@@ -243,7 +262,8 @@ function Documents() {
                   {filteredData.map((d, i) => (
                     <tr key={d.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{i + 1}</td>
-                      <td className="px-4 py-2">{d.sinistre_id}</td>
+                      <td className="px-4 py-2">{sinistres.find(s => s.id === d.sinistre_id)?.Numero_Sinistre}</td>
+                      <td className="px-4 py-2">{users.find(u => u.id === d.expert)?.nom || d.expert || "-"}</td>
                       <td className="px-4 py-2">{d.nom_fichier}</td>
                       <td className="px-4 py-2">{d.type_document}</td>
                       <td className="px-4 py-2">{d.date_upload}</td>
@@ -260,6 +280,7 @@ function Documents() {
                           onClick={() => {
                             setSelectedDoc(d)
                             setSinistreId(String(d.sinistre_id))
+                            setExpertId(String(d.expert))
                             setNomFichier(d.nom_fichier)
                             setTypeDocument(d.type_document)
                             setDateUpload(d.date_upload)
@@ -267,7 +288,7 @@ function Documents() {
                           }}
                           className="text-blue-600 hover:underline"
                         >
-                          Update
+                          Mise à jour
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
@@ -275,7 +296,7 @@ function Documents() {
                           onClick={() => handleDelete(d.id)}
                           className="text-red-600 hover:underline"
                         >
-                          Delete
+                          Supprimer
                         </button>
                       </td>
                     </tr>
@@ -283,7 +304,7 @@ function Documents() {
                   {filteredData.length === 0 && (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={9}
                         className="text-center text-gray-500 py-4"
                       >
                         Aucun document trouvé
@@ -297,7 +318,6 @@ function Documents() {
         </div>
       </div>
 
-      {/* Add Modal */}
       <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)}>
         <h2 className="text-xl font-bold mb-4">Ajouter un Document</h2>
 
@@ -307,10 +327,24 @@ function Documents() {
           onChange={(e) => setSinistreId(e.target.value)}
           required
         >
-          <option value="">Sélectionner un Sinistre</option>
+          <option value="">Sélectionner le Numero du Sinistre</option>
           {sinistres.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.id}
+              {s.Numero_Sinistre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="w-full p-2 border rounded mb-2"
+          value={expertId}
+          onChange={(e) => setExpertId(e.target.value)}
+          required
+        >
+          <option value="">Sélectionner un Expert</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nom}
             </option>
           ))}
         </select>
@@ -331,7 +365,6 @@ function Documents() {
           onChange={(e) => setTypeDocument(e.target.value)}
         />
 
-        {/* File upload */}
         <input
           type="file"
           className="w-full p-2 border rounded mb-2"
@@ -355,18 +388,17 @@ function Documents() {
             onClick={() => setShowAddModal(false)}
             className="px-4 py-2 bg-gray-200 rounded"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={handleAddDocument}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Save
+            Enregistrer
           </button>
         </div>
       </Modal>
 
-      {/* Update Modal */}
       <Modal isOpen={showUpdateModal} onClose={() => setShowUpdateModal(false)}>
         <h2 className="text-xl font-bold mb-4">Mettre à jour le Document</h2>
 
@@ -374,11 +406,26 @@ function Documents() {
           className="w-full p-2 border rounded mb-2"
           value={sinistreId}
           onChange={(e) => setSinistreId(e.target.value)}
+          required
         >
-          <option value="">Sélectionner un Sinistre</option>
+          <option value="">Sélectionner le Numero du Sinistre</option>
           {sinistres.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.id}
+              {s.Numero_Sinistre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="w-full p-2 border rounded mb-2"
+          value={expertId}
+          onChange={(e) => setExpertId(e.target.value)}
+          required
+        >
+          <option value="">Sélectionner un Expert</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nom}
             </option>
           ))}
         </select>
@@ -399,7 +446,6 @@ function Documents() {
           onChange={(e) => setTypeDocument(e.target.value)}
         />
 
-        {/* File upload */}
         <input
           type="file"
           className="w-full p-2 border rounded mb-2"
@@ -423,13 +469,13 @@ function Documents() {
             onClick={() => setShowUpdateModal(false)}
             className="px-4 py-2 bg-gray-200 rounded"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={handleUpdateDocument}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Update
+            Mise à jour
           </button>
         </div>
       </Modal>

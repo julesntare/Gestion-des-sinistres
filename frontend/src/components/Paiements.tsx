@@ -14,6 +14,7 @@ interface Paiement {
 
 interface Sinistre {
   id: number
+  Numero_Sinistre: string
   type: string
 }
 
@@ -123,7 +124,7 @@ function Paiements() {
 
   // Filter paiements based on search
   const filteredPaiements = paiements.filter(p => {
-    const sinistre = sinistres.find(s => s.id === p.sinistre_id)?.type || ""
+    const sinistre = sinistres.find(s => s.id === p.sinistre_id)?.Numero_Sinistre || ""
     return (
       sinistre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.montant.toString().includes(searchTerm) ||
@@ -184,7 +185,7 @@ function Paiements() {
                   {filteredPaiements.map((p, i) => (
                     <tr key={p.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{i + 1}</td>
-                      <td className="px-4 py-2">{sinistres.find(s => s.id === p.sinistre_id)?.type || p.sinistre_id}</td>
+                      <td className="px-4 py-2">{sinistres.find(s => s.id === p.sinistre_id)?.Numero_Sinistre || p.sinistre_id}</td>
                       <td className="px-4 py-2">{p.montant}</td>
                       <td className="px-4 py-2">{p.date_paiement}</td>
                       <td className="px-4 py-2">{p.méthode}</td>
@@ -201,12 +202,12 @@ function Paiements() {
                         }}
                           className="text-blue-600 hover:underline"
                         >
-                          Update
+                          Mise à jour
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
                         <button onClick={() => handleDelete(p.id)} className="text-red-600 hover:underline">
-                          Delete
+                          Supprimer
                         </button>
                       </td>
                     </tr>
@@ -232,7 +233,7 @@ function Paiements() {
         <select className="w-full p-2 border rounded mb-2" value={sinistreId} onChange={e => setSinistreId(e.target.value)}>
           <option value="">Sélectionner un Sinistre</option>
           {sinistres.map(s => (
-            <option key={s.id} value={s.id}>{s.type}</option>
+            <option key={s.id} value={s.id}>{s.Numero_Sinistre}</option>
           ))}
         </select>
 
@@ -245,12 +246,20 @@ function Paiements() {
         <input type="text" placeholder="Méthode" className="w-full p-2 border rounded mb-2"
           value={methode} onChange={e => setMethode(e.target.value)} />
 
-        <input type="text" placeholder="Statut" className="w-full p-2 border rounded mb-4"
-          value={statut} onChange={e => setStatut(e.target.value)} />
+        <select
+           className="w-full p-2 border rounded mb-2"
+           value={statut}
+           onChange={e => setStatut(e.target.value)}
+         >
+           <option value="">Sélectionner un Statut</option>
+           <option value="en attente">En attente</option>
+           <option value="resolu">Résolu</option>
+           <option value="Rejeté">Rejeté</option>
+         </select>
 
         <div className="flex justify-end gap-2">
-          <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-          <button onClick={handleAddPaiement} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+          <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+          <button onClick={handleAddPaiement} className="px-4 py-2 bg-blue-600 text-white rounded">Enregistrer</button>
         </div>
       </Modal>
 
@@ -261,7 +270,7 @@ function Paiements() {
         <select className="w-full p-2 border rounded mb-2" value={sinistreId} onChange={e => setSinistreId(e.target.value)}>
           <option value="">Sélectionner un Sinistre</option>
           {sinistres.map(s => (
-            <option key={s.id} value={s.id}>{s.type}</option>
+            <option key={s.id} value={s.id}>{s.Numero_Sinistre}</option>
           ))}
         </select>
 
@@ -274,12 +283,20 @@ function Paiements() {
         <input type="text" placeholder="Méthode" className="w-full p-2 border rounded mb-2"
           value={methode} onChange={e => setMethode(e.target.value)} />
 
-        <input type="text" placeholder="Statut" className="w-full p-2 border rounded mb-4"
-          value={statut} onChange={e => setStatut(e.target.value)} />
+        <select
+           className="w-full p-2 border rounded mb-2"
+           value={statut}
+           onChange={e => setStatut(e.target.value)}
+         >
+           <option value="">Sélectionner un Statut</option>
+           <option value="en attente">En attente</option>
+           <option value="resolu">Résolu</option>
+           <option value="Rejeté">Rejeté</option>
+         </select>
 
         <div className="flex justify-end gap-2">
-          <button onClick={() => setShowUpdateModal(false)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-          <button onClick={handleUpdatePaiement} className="px-4 py-2 bg-blue-600 text-white rounded">Update</button>
+          <button onClick={() => setShowUpdateModal(false)} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+          <button onClick={handleUpdatePaiement} className="px-4 py-2 bg-blue-600 text-white rounded">Mise à jour </button>
         </div>
       </Modal>
     </div>

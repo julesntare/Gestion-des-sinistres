@@ -166,51 +166,51 @@ app.delete("/deleterole/:id", (req, res) => {
     })
 })
 
-//EXPRERTS
+//EXPERTS
 
-app.get("/viewexpert", (req,res) => {
-    const sql = "SELECT * FROM `experts`"
-    db.query(sql, (err, data) => {
-        if (err) {
-            return res.status(500).json({message: "Error getting info"}, err)
-        }
-        return res.status(200).json(data)
-    })
-})
+// app.get("/viewexpert", (req,res) => {
+//     const sql = "SELECT * FROM `experts`"
+//     db.query(sql, (err, data) => {
+//         if (err) {
+//             return res.status(500).json({message: "Error getting info"}, err)
+//         }
+//         return res.status(200).json(data)
+//     })
+// })
 
-app.post("/createexpert", (req,res) => {
-    const {nom,	specialite,	email,	telephone} = req.body
-    const sql = "INSERT INTO `experts`(`nom`, `spécialité`, `email`, `téléphone`) VALUES (?,?,?,?)"
-    db.query(sql, [nom,	specialite,	email,	telephone], (err, msg) => {
-        if (err) {
-            return res.status(500).json({message: "Error creating expert"}, err)
-        }
-        return res.status(201).json({message: "Insert Successfull"}, msg)
-    })
-})
+// app.post("/createexpert", (req,res) => {
+//     const {nom,	specialite,	email,	telephone} = req.body
+//     const sql = "INSERT INTO `experts`(`nom`, `spécialité`, `email`, `téléphone`) VALUES (?,?,?,?)"
+//     db.query(sql, [nom,	specialite,	email,	telephone], (err, msg) => {
+//         if (err) {
+//             return res.status(500).json({message: "Error creating expert"}, err)
+//         }
+//         return res.status(201).json({message: "Insert Successfull"}, msg)
+//     })
+// })
 
-app.put("/updateexpert/:id", (req, res) => {
-    const {nom,	specialite,	email,	telephone} = req.body
-    const {id} = req.params
-    const sql = "UPDATE `experts` SET `nom`=?,`spécialité`=?,`email`=?,`téléphone`=? WHERE id=?"
-    db.query(sql, [nom,	specialite,	email,	telephone,  id], (err, msg) => {
-        if (err) {
-            return res.status(500).json({message: "Error updating expert"}, err)
-        }
-        return res.status(201).json({message: "Update Successfull"}, msg)
-    })
-})
+// app.put("/updateexpert/:id", (req, res) => {
+//     const {nom,	specialite,	email,	telephone} = req.body
+//     const {id} = req.params
+//     const sql = "UPDATE `experts` SET `nom`=?,`spécialité`=?,`email`=?,`téléphone`=? WHERE id=?"
+//     db.query(sql, [nom,	specialite,	email,	telephone,  id], (err, msg) => {
+//         if (err) {
+//             return res.status(500).json({message: "Error updating expert"}, err)
+//         }
+//         return res.status(201).json({message: "Update Successfull"}, msg)
+//     })
+// })
 
-app.delete("/deleteexpert/:id", (req, res) => {
-    const {id} = req.params
-    const sql = "DELETE FROM `experts` WHERE `id`=?"
-    db.query(sql, [id], (err, msg) => {
-        if (err) {
-            return res.status(500).json({message: "Error deleting expert"}, err)
-        }
-        return res.status(201).json({message: "deleted Successfully"}, msg)
-    })
-})
+// app.delete("/deleteexpert/:id", (req, res) => {
+//     const {id} = req.params
+//     const sql = "DELETE FROM `experts` WHERE `id`=?"
+//     db.query(sql, [id], (err, msg) => {
+//         if (err) {
+//             return res.status(500).json({message: "Error deleting expert"}, err)
+//         }
+//         return res.status(201).json({message: "deleted Successfully"}, msg)
+//     })
+// })
 
 //EXPERTISES ENDPOINTS
 
@@ -277,34 +277,39 @@ app.get("/viewdocuments", (req,res) => {
     })
 })
 
-
+// CREATE DOCUMENT
 app.post("/createdocuments", upload.single("contenu_fichier"), (req, res) => {
-  const { sinistre_id, nom_fichier, type_document, date_upload } = req.body
-  const contenu_fichier = req.file ? req.file.buffer : null
-
-  const sql =
-    "INSERT INTO `documents`(`sinistre_id`, `nom_fichier`, `type_document`, `contenu_fichier`, `date_upload`) VALUES (?,?,?,?,?)"
-  db.query(sql, [sinistre_id, nom_fichier, type_document, contenu_fichier, date_upload], (err, msg) => {
-    if (err) return res.status(500).json({ message: "Error creating document", error: err })
-    return res.status(201).json({ message: "Insert Successful" })
-  })
-})
+  const { sinistre_id, expert, nom_fichier, type_document, date_upload } = req.body;
+  const contenu_fichier = req.file ? req.file.buffer : null;
+  const sql = `INSERT INTO documents(sinistre_id, expert, nom_fichier, type_document, contenu_fichier, date_upload)VALUES (?, ?, ?, ?, ?, ?)`;
+  db.query(
+    sql,
+    [sinistre_id, expert, nom_fichier, type_document, contenu_fichier, date_upload],
+    (err, result) => {
+      if (err) {
+        console.error("Error creating document:", err);
+        return res.status(500).json({ message: "Error creating document", error: err });
+      }
+      return res.status(201).json({ message: "Insert Successful" });
+    }
+  );
+});
 
 app.put("/updatedocuments/:id", upload.single("contenu_fichier"), (req, res) => {
-  const { sinistre_id, nom_fichier, type_document, date_upload } = req.body
+  const { sinistre_id, expert, nom_fichier, type_document, date_upload } = req.body
   const { id } = req.params
   const contenu_fichier = req.file ? req.file.buffer : null
 
   let sql, values
   if (contenu_fichier) {
     sql =
-      "UPDATE `documents` SET `sinistre_id`=?,`nom_fichier`=?,`type_document`=?,`contenu_fichier`=?,`date_upload`=? WHERE id=?"
-    values = [sinistre_id, nom_fichier, type_document, contenu_fichier, date_upload, id]
+      "UPDATE `documents` SET `sinistre_id`=?,`expert`=?,`nom_fichier`=?,`type_document`=?,`contenu_fichier`=?,`date_upload`=? WHERE id=?"
+    values = [sinistre_id, expert, nom_fichier, type_document, contenu_fichier, date_upload, id]
   } else {
     // If no new file uploaded, keep old one
     sql =
-      "UPDATE `documents` SET `sinistre_id`=?,`nom_fichier`=?,`type_document`=?,`date_upload`=? WHERE id=?"
-    values = [sinistre_id, nom_fichier, type_document, date_upload, id]
+      "UPDATE `documents` SET `sinistre_id`=?,`expert`=?,`nom_fichier`=?,`type_document`=?,`date_upload`=? WHERE id=?"
+    values = [sinistre_id, expert, nom_fichier, type_document, date_upload, id]
   }
 
   db.query(sql, values, (err, msg) => {
@@ -395,6 +400,20 @@ app.get("/viewpolices", (req,res) => {
     })
 })
 
+// GET policies for a specific user
+app.get("/viewpolices/:userId", (req, res) => {
+  const { userId } = req.params;
+  const sql = "SELECT * FROM `polices` WHERE utilisateur_id = ?";
+  db.query(sql, [userId], (err, data) => {
+    if (err) {
+      console.error("Error fetching polices for user:", err);
+      return res.status(500).json({ message: "Error getting polices" });
+    }
+    return res.status(200).json(data);
+  });
+});
+
+
 app.post("/createpolices", (req,res) => {
     const {numero_police, utilisateur_id, type, date_debut, date_fin, statut} = req.body
     const sql = "INSERT INTO `polices`(`numero_police`, `utilisateur_id`, `type`, `date_debut`, `date_fin`, `statut`) VALUES (?,?,?,?,?,?)"
@@ -405,6 +424,46 @@ app.post("/createpolices", (req,res) => {
         return res.status(201).json({message: "Insert Successfull"}, msg)
     })
 })
+
+// CREATE POLICE - improved validation & clearer errors
+// app.post("/createpolices", (req, res) => {
+//   try {
+//     let { numero_police, utilisateur_id, type, date_debut, date_fin, statut } = req.body;
+
+//     // Basic validation
+//     if (!numero_police || !utilisateur_id || !type || !date_debut || !date_fin || !statut) {
+//       return res.status(400).json({ message: "Missing required fields. Required: numero_police, utilisateur_id, type, date_debut, date_fin, statut" });
+//     }
+
+//     // coerce utilisateur_id to number
+//     utilisateur_id = Number(utilisateur_id);
+//     if (Number.isNaN(utilisateur_id) || utilisateur_id <= 0) {
+//       return res.status(400).json({ message: "utilisateur_id must be a positive integer" });
+//     }
+
+//     // Optional: simple date format check (YYYY-MM-DD)
+//     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+//     if (!dateRegex.test(date_debut) || !dateRegex.test(date_fin)) {
+//       return res.status(400).json({ message: "Dates must be in YYYY-MM-DD format" });
+//     }
+
+//     const sql = "INSERT INTO `polices`(`numero_police`, `utilisateur_id`, `type`, `date_debut`, `date_fin`, `statut`) VALUES (?,?,?,?,?,?)";
+//     const values = [numero_police, utilisateur_id, type, date_debut, date_fin, statut];
+
+//     db.query(sql, values, (err, result) => {
+//       if (err) {
+//         console.error("createpolices SQL error:", err);
+//         // return the full error message for debugging (you can remove this in production)
+//         return res.status(500).json({ message: "Error creating polices", error: err.message });
+//       }
+//       return res.status(201).json({ message: "Insert Successful", insertId: result.insertId });
+//     });
+//   } catch (ex) {
+//     console.error("createpolices unexpected error:", ex);
+//     return res.status(500).json({ message: "Unexpected server error", error: String(ex) });
+//   }
+// });
+
 
 app.put("/updatepolices/:id", (req, res) => {
     const {numero_police, utilisateur_id, type, date_debut, date_fin, statut} = req.body
@@ -469,9 +528,9 @@ app.get("/viewsinistres", (req,res) => {
 })
 
 app.post("/createsinistres", (req,res) => {
-    const {utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé} = req.body
-    const sql = "INSERT INTO `sinistres`(`utilisateur_id`, `police_id`, `expert`, `date_declaration`, `type`, `description`, `statut`, `montant_requis`, `montant_approuvé`) VALUES (?,?,?,?,?,?,?,?,?)"
-    db.query(sql, [utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé], (err, msg) => {
+    const {Numero_Sinistre,utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé} = req.body
+    const sql = "INSERT INTO `sinistres`(`Numero_Sinistre`,`utilisateur_id`, `police_id`, `expert`, `date_declaration`, `type`, `description`, `statut`, `montant_requis`, `montant_approuvé`) VALUES (?,?,?,?,?,?,?,?,?,?)"
+    db.query(sql, [Numero_Sinistre,utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé], (err, msg) => {
         if (err) {
             return res.status(500).json({message: "Error creating sinistres"}, err)
         }
@@ -480,10 +539,10 @@ app.post("/createsinistres", (req,res) => {
 })
 
 app.put("/updatesinistres/:id", (req, res) => {
-    const {utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé} = req.body
+    const {Numero_Sinistre, utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé} = req.body
     const {id} = req.params
-    const sql = "UPDATE `sinistres` SET `utilisateur_id`=?,`police_id`=?,`expert`=?,`date_declaration`=?,`type`=?,`description`=?,`statut`=?,`montant_requis`=?,`montant_approuvé`=? WHERE id=?"
-    db.query(sql, [utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé,  id], (err, msg) => {
+    const sql = "UPDATE `sinistres` SET `Numero_Sinistre`=?,`utilisateur_id`=?,`police_id`=?,`expert`=?,`date_declaration`=?,`type`=?,`description`=?,`statut`=?,`montant_requis`=?,`montant_approuvé`=? WHERE id=?"
+    db.query(sql, [Numero_Sinistre, utilisateur_id, police_id, expert, date_declaration, type, description, statut, montant_requis, montant_approuvé,  id], (err, msg) => {
         if (err) {
             return res.status(500).json({message: "Error updating sinistres"}, err)
         }

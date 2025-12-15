@@ -205,7 +205,7 @@ function Experts() {
                           onClick={() => handleDelete(d.id)}
                           className="text-red-600 hover:underline"
                         >
-                          Delete
+                          Supprimer
                         </button>
                       </td>
                     </tr>
@@ -268,13 +268,13 @@ function Experts() {
             onClick={() => setShowAddModal(false)}
             className="px-4 py-2 bg-gray-200 rounded"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={handleAddExpert}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Save
+            Enregistrer
           </button>
         </div>
       </Modal>
@@ -320,7 +320,7 @@ function Experts() {
             onClick={() => setShowUpdateModal(false)}
             className="px-4 py-2 bg-gray-200 rounded"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={handleUpdateExpert}

@@ -3,8 +3,6 @@ import Topbar from "./topbar.tsx"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 
-
-
 interface Sinistre {
   id: number
   utilisateur_id: number
@@ -21,10 +19,10 @@ interface Police {
   id: number
   numero_police: string
   type: string
+  // add owner field in case backend provides it
+  utilisateur_id?: number | string
 }
 
-
-// Reuse the same modal component from Claims
 function Modal({ isOpen, onClose, children }: { isOpen: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!isOpen) return null
   return (
@@ -43,8 +41,7 @@ function Modal({ isOpen, onClose, children }: { isOpen: boolean, onClose: () => 
 }
 
 function HomeClient() {
-
-  const navigate = useNavigate() 
+  const navigate = useNavigate()
 
   const [sinistres, setSinistres] = useState<Sinistre[]>([])
   const [polices, setPolices] = useState<Police[]>([])
@@ -58,33 +55,75 @@ function HomeClient() {
   const [dateDeclaration, setDateDeclaration] = useState("")
   const [type, setType] = useState("")
   const [description, setDescription] = useState("")
-  const [userId, setUserId] = useState("")
-
-  // document form
-  // const [titre, setTitre] = useState("")
-  // const [docType, setDocType] = useState("")
-  // const [docDescription, setDocDescription] = useState("")
-  // const [documentFile, setDocumentFile] = useState<File | null>(null)
+  const [userId, setUserId] = useState<string>("")
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("user-id")
     if (storedUserId) {
       setUserId(storedUserId)
       fetchSinistres(storedUserId)
+      // fetch only polices for that user
+      fetchPolices(storedUserId)
+    } else {
+      // still try to fetch all polices (fallback) or set empty
+      fetchPolices()
     }
-    fetchPolices()
   }, [])
 
+  // fetch sinistres as before
   const fetchSinistres = (uid: string) => {
     axios.get(`http://localhost:3000/viewsinistres/${uid}`)
       .then(res => setSinistres(res.data))
       .catch(err => console.log(err))
   }
 
-  const fetchPolices = () => {
-    axios.get("http://localhost:3000/viewpolices")
-      .then(res => setPolices(res.data))
-      .catch(err => console.log(err))
+  /**
+   * fetchPolices(uid?)
+   * - Preferred: call backend endpoint that returns policies for a user:
+   *     GET /viewpolices/:uid  OR  GET /viewpolices?utilisateur_id=uid
+   * - Fallback: GET /viewpolices (all) then filter locally by utilisateur_id if that field exists
+   */
+  const fetchPolices = async (uid?: string) => {
+    try {
+      if (uid) {
+        // try endpoint that accepts user id in path
+        try {
+          const res = await axios.get(`http://localhost:3000/viewpolices/${uid}`)
+          setPolices(res.data)
+          return
+        } catch (e) {
+          // path-style endpoint failed — try query param style
+          try {
+            const res2 = await axios.get(`http://localhost:3000/viewpolices`, { params: { utilisateur_id: uid } })
+            setPolices(res2.data)
+            return
+          } catch (e2) {
+            // fall through to generic fetch and local filter
+          }
+        }
+      }
+
+      // Generic fetch (returns all policies). We'll filter locally if possible.
+      const all = await axios.get("http://localhost:3000/viewpolices")
+      const data: Police[] = all.data
+
+      if (uid) {
+        // try to filter locally using utilisateur_id field if present
+        const filtered = data.filter(p => {
+          // compare as string to be robust
+          return (p as any).utilisateur_id !== undefined
+            ? String((p as any).utilisateur_id) === String(uid)
+            : false
+        })
+
+        // if filtered list is non-empty, use it, otherwise keep empty (safer than showing all)
+        setPolices(filtered.length ? filtered : [])
+      } else {
+        setPolices(data)
+      }
+    } catch (err) {
+      console.log("fetchPolices error:", err)
+    }
   }
 
   const handleAddSinistre = async () => {
@@ -107,27 +146,6 @@ function HomeClient() {
     }
   }
 
-  // const handleAddDocument = async () => {
-  //   if (!selectedSinistreId) return
-  //   try {
-  //     const formData = new FormData()
-  //     formData.append("sinistre_id", selectedSinistreId.toString())
-  //     formData.append("titre", titre)
-  //     formData.append("type", docType)
-  //     formData.append("description", docDescription)
-  //     if (documentFile) formData.append("chemin_fichier", documentFile)
-
-  //     await axios.post("http://localhost:3000/createdocument", formData, {
-  //       headers: { "Content-Type": "multipart/form-data" },
-  //     })
-
-  //     setShowDocModal(false)
-  //     clearDocumentForm()
-  //   } catch (err: any) {
-  //     console.log(err.response?.data || err)
-  //   }
-  // }
-
   const clearSinistreForm = () => {
     setPoliceId("")
     setDateDeclaration("")
@@ -135,68 +153,30 @@ function HomeClient() {
     setDescription("")
   }
 
-  // const clearDocumentForm = () => {
-  //   setTitre("")
-  //   setDocType("")
-  //   setDocDescription("")
-  //   setDocumentFile(null)
-  // }
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Topbar */}
       <Topbar />
-
-      {/* Main content */}
       <main className="flex-1 p-6">
         <h1 className="text-2xl font-bold mb-6">Bienvenue sur votre espace client</h1>
-
-        {/* Dashboard cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1 */}
           <div className="bg-white rounded-2xl shadow p-6">
             <h2 className="text-lg font-semibold">📌 Déclarer un sinistre</h2>
-            <p className="text-gray-600 mt-2">
-              Signalez rapidement un nouvel incident auprès de votre assurance.
-            </p>
-            <button
-            onClick={() => setShowAddModal(true)}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Déclarer
-          </button>
+            <p className="text-gray-600 mt-2">Signalez rapidement un nouvel incident auprès de votre assurance.</p>
+            <button onClick={() => setShowAddModal(true)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              Déclarer
+            </button>
           </div>
 
-          {/* Card 2 */}
           <div className="bg-white rounded-2xl shadow p-6">
             <h2 className="text-lg font-semibold">📑 Mes sinistres</h2>
-            <p className="text-gray-600 mt-2">
-              Consultez l’état de vos sinistres en cours et leur historique.
-            </p>
-            <button
-              onClick={() => navigate("/claims")}
-              className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
+            <p className="text-gray-600 mt-2">Consultez l’état de vos sinistres en cours et leur historique.</p>
+            <button onClick={() => navigate("/claims")} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
               Voir mes sinistres
             </button>
           </div>
-
-          {/* Card 3 */}
-          {/* <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold">📂 Mes documents</h2>
-            <p className="text-gray-600 mt-2">
-              Téléchargez ou visualisez vos pièces justificatives.
-            </p>
-            <button
-            onClick={() => navigate("/Documents")}
-              className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              Gérer mes documents
-            </button>
-          </div> */}
         </div>
       </main>
 
-      {/* Add Sinistre Modal */}
       <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)}>
         <h2 className="text-xl font-bold mb-4">Ajouter un Sinistre</h2>
 
@@ -207,7 +187,7 @@ function HomeClient() {
         >
           <option value="">Sélectionner une Police</option>
           {polices.map(p => (
-            <option key={p.id} value={p.id}>{p.type}</option>
+            <option key={p.id} value={p.id}>{p.numero_police}</option>
           ))}
         </select>
 
@@ -216,8 +196,8 @@ function HomeClient() {
         <textarea placeholder="Description" className="w-full p-2 border rounded mb-4" value={description} onChange={e => setDescription(e.target.value)} />
 
         <div className="flex justify-end gap-2">
-          <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-          <button onClick={handleAddSinistre} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+          <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+          <button onClick={handleAddSinistre} className="px-4 py-2 bg-blue-600 text-white rounded">Enregistrer</button>
         </div>
       </Modal>
     </div>

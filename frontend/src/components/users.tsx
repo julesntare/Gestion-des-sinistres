@@ -140,12 +140,12 @@ function Users() {
               <h1 className="font-bold text-2xl">Gestion Des Utilisateurs</h1>
               <h2 className="font-light">Suivi des utilisateurs</h2>
             </div>
-            <button
+            {/* <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 text-sm h-10 px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow text-white rounded-sm"
             >
               + Nouvel Utilisateur
-            </button>
+            </button> */}
           </div>
 
           {/* Search Bar */}
@@ -198,7 +198,7 @@ function Users() {
                           }}
                           className="text-blue-600 hover:underline"
                         >
-                          Update
+                          Mise à jour
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
@@ -206,7 +206,7 @@ function Users() {
                           onClick={() => handleDelete(u.id)}
                           className="text-red-600 hover:underline"
                         >
-                          Delete
+                          Supprimer
                         </button>
                       </td>
                     </tr>
@@ -261,13 +261,13 @@ function Users() {
             onClick={() => setShowAddModal(false)}
             className="px-4 py-2 bg-gray-200 rounded"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={handleAddUser}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Save
+            Enregistrer
           </button>
         </div>
       </Modal>
@@ -308,13 +308,13 @@ function Users() {
             onClick={() => setShowUpdateModal(false)}
             className="px-4 py-2 bg-gray-200 rounded"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={handleUpdateUser}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Update
+            Mise à jour
           </button>
         </div>
       </Modal>

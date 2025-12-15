@@ -10,7 +10,7 @@ function Home() {
     totalSinistres: 0,
     enAttente: 0,
     resolus: 0,
-    expertsActifs: 0,
+    utilisateursActifs: 0,
   })
 
   useEffect(() => {
@@ -22,8 +22,8 @@ function Home() {
         
 
         // ⚡️ If you have an experts endpoint, replace below with the correct one
-        const resExperts = await fetch("http://localhost:3000/viewexpert")
-        const experts = await resExperts.json()
+        const resUser = await fetch("http://localhost:3000/viewuser")
+        const utilisateurs = await resUser.json()
 
         const total = sinistres.length
         const enAttente = sinistres.filter((s: any) => s.statut === "en attente").length
@@ -33,7 +33,7 @@ function Home() {
           totalSinistres: total,
           enAttente,
           resolus,
-          expertsActifs: experts.length,
+          utilisateursActifs: utilisateurs.length,
         })
       } catch (error) {
         console.error("Erreur lors du chargement des stats:", error)
@@ -61,7 +61,7 @@ function Home() {
             <StatCard label="Total des sinistres" value={stats.totalSinistres.toString()} />
             <StatCard label="En attente" value={stats.enAttente.toString()} />
             <StatCard label="Résolus" value={stats.resolus.toString()} />
-            <StatCard label="Experts actifs" value={stats.expertsActifs.toString()} />
+            <StatCard label="Utilisateurs actifs" value={stats.utilisateursActifs.toString()} />
           </div>
 
           {/* Quick actions */}
@@ -93,13 +93,13 @@ function Home() {
 
             {/* Experts */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-lg font-semibold">👨‍💼 Experts</h3>
-              <p className="text-gray-600 mt-2">Gérez les comptes et les activités des experts.</p>
+              <h3 className="text-lg font-semibold">👨‍💼 Polices</h3>
+              <p className="text-gray-600 mt-2">Gérez les comptes et les activités des polices.</p>
               <button
-                onClick={() => navigate("/experts")}
+                onClick={() => navigate("/polices")}
                 className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
               >
-                Gérer les experts
+                Gérer les Polices
               </button>
             </div>
           </div>
