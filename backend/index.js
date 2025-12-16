@@ -15,21 +15,28 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 app.use(cors());
 
-// Database Configuration
+// Database Configuration - Using connection pool for better reliability
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 });
 
-db.connect((err) => {
+// Test the pool connection
+db.getConnection((err, connection) => {
   if (err) {
-    console.error("connection failed", err);
+    console.error("Database connection failed:", err);
   } else {
-    console.log("connection success");
+    console.log("Database connection pool established successfully");
+    connection.release();
   }
 });
 
