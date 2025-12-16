@@ -3,17 +3,7 @@ import Topbar from "./topbar.tsx"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 
-interface Sinistre {
-  id: number
-  utilisateur_id: number
-  police_id: number
-  date_declaration: string
-  type: string
-  description: string
-  statut: string
-  montant_requis: number
-  montant_approuvé: number
-}
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
 
 interface Police {
   id: number
@@ -43,12 +33,8 @@ function Modal({ isOpen, onClose, children }: { isOpen: boolean, onClose: () => 
 function HomeClient() {
   const navigate = useNavigate()
 
-  const [sinistres, setSinistres] = useState<Sinistre[]>([])
   const [polices, setPolices] = useState<Police[]>([])
   const [showAddModal, setShowAddModal] = useState(false)
-  const [showDocModal, setShowDocModal] = useState(false)
-  const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({})
-  const [selectedSinistreId, setSelectedSinistreId] = useState<number | null>(null)
 
   // sinistre form
   const [policeId, setPoliceId] = useState("")
@@ -61,7 +47,6 @@ function HomeClient() {
     const storedUserId = localStorage.getItem("user-id")
     if (storedUserId) {
       setUserId(storedUserId)
-      fetchSinistres(storedUserId)
       // fetch only polices for that user
       fetchPolices(storedUserId)
     } else {
@@ -69,13 +54,6 @@ function HomeClient() {
       fetchPolices()
     }
   }, [])
-
-  // fetch sinistres as before
-  const fetchSinistres = (uid: string) => {
-    axios.get(`http://localhost:3000/viewsinistres/${uid}`)
-      .then(res => setSinistres(res.data))
-      .catch(err => console.log(err))
-  }
 
   /**
    * fetchPolices(uid?)
@@ -88,13 +66,13 @@ function HomeClient() {
       if (uid) {
         // try endpoint that accepts user id in path
         try {
-          const res = await axios.get(`http://localhost:3000/viewpolices/${uid}`)
+          const res = await axios.get(`${API_URL}/viewpolices/${uid}`)
           setPolices(res.data)
           return
         } catch (e) {
           // path-style endpoint failed — try query param style
           try {
-            const res2 = await axios.get(`http://localhost:3000/viewpolices`, { params: { utilisateur_id: uid } })
+            const res2 = await axios.get(`${API_URL}/viewpolices`, { params: { utilisateur_id: uid } })
             setPolices(res2.data)
             return
           } catch (e2) {
@@ -104,7 +82,7 @@ function HomeClient() {
       }
 
       // Generic fetch (returns all policies). We'll filter locally if possible.
-      const all = await axios.get("http://localhost:3000/viewpolices")
+      const all = await axios.get("${API_URL}/viewpolices")
       const data: Police[] = all.data
 
       if (uid) {
@@ -128,7 +106,7 @@ function HomeClient() {
 
   const handleAddSinistre = async () => {
     try {
-      await axios.post("http://localhost:3000/createsinistres", {
+      await axios.post("${API_URL}/createsinistres", {
         utilisateur_id: userId,
         police_id: policeId,
         date_declaration: dateDeclaration,
@@ -138,9 +116,9 @@ function HomeClient() {
         montant_requis: 0.0,
         montant_approuvé: 0.0,
       })
-      if (userId) fetchSinistres(userId)
       clearSinistreForm()
       setShowAddModal(false)
+      alert("✅ Sinistre ajouté avec succès!")
     } catch (err: any) {
       console.log(err.response?.data || err)
     }

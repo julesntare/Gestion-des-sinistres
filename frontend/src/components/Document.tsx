@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}";
+
 interface Documents {
   id: number;
   sinistre_id: number;
@@ -85,7 +87,7 @@ function Document() {
 
   const fetchDocuments = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/viewdocuments");
+      const res = await axios.get("${API_URL}/viewdocuments");
       const allDocs: Documents[] = res.data;
       
       console.log("📊 All documents from API:", allDocs);
@@ -108,7 +110,7 @@ function Document() {
 
   const fetchSinistres = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/viewsinistres");
+      const res = await axios.get("${API_URL}/viewsinistres");
       setSinistres(res.data);
     } catch (err) {
       console.log(err);
@@ -117,7 +119,7 @@ function Document() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/viewuser");
+      const res = await axios.get("${API_URL}/viewuser");
       setUsers(res.data.filter((u: User) => u.role_id === 8));
     } catch (err) {
       console.log(err);
@@ -134,7 +136,7 @@ function Document() {
       if (contenuFichier) formData.append("contenu_fichier", contenuFichier);
       formData.append("date_upload", dateUpload);
 
-      await axios.post("http://localhost:3000/createdocuments", formData, {
+      await axios.post("${API_URL}/createdocuments", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -146,18 +148,9 @@ function Document() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await axios.delete(`http://localhost:3000/deletedocuments/${id}`);
-      setDocuments((prev) => prev.filter((doc) => doc.id !== id));
-    } catch (err: any) {
-      console.log(err.response?.data || err);
-    }
-  };
-
   const handleDownload = async (id: number, nomFichier: string) => {
     try {
-      const res = await axios.get(`http://localhost:3000/download/${id}`, {
+      const res = await axios.get(`${API_URL}/download/${id}`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));

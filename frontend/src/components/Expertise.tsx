@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 interface Expertises {
   id: number;
   sinistre_id: number;
@@ -77,7 +79,7 @@ function Expertise() {
   }, [loggedInUserId]);
 
   const fetchExpertises = () => {
-    axios.get("http://localhost:3000/viewexpertises")
+    axios.get(`${API_URL}/viewexpertises`)
       .then(res => {
         const arr: any[] = Array.isArray(res.data) ? res.data : [];
 
@@ -105,13 +107,13 @@ function Expertise() {
   };
 
   const fetchSinistres = () => {
-    axios.get("http://localhost:3000/viewsinistres")
+    axios.get(`${API_URL}/viewsinistres`)
       .then((res) => setSinistres(res.data))
       .catch((err) => console.log(err));
   };
 
   const fetchUsers = () => {
-    axios.get("http://localhost:3000/viewuser")
+    axios.get(`${API_URL}/viewuser`)
       .then((res) =>
         setUsers(res.data.filter((u: { role_id: number }) => u.role_id === 8))
       )
@@ -144,7 +146,7 @@ function Expertise() {
     }
 
     try {
-      await axios.post("http://localhost:3000/createexpertises", {
+      await axios.post(`${API_URL}/createexpertises`, {
         sinistre_id: Number(sinistreId),
         expert: expertId,
         rapport,
@@ -169,7 +171,7 @@ function Expertise() {
 
     try {
       await axios.put(
-        `http://localhost:3000/updateexpertises/${selectedExp.id}`,
+        `${API_URL}/updateexpertises/${selectedExp.id}`,
         {
           sinistre_id: Number(sinistreId),
           expert: expertId,
@@ -189,7 +191,7 @@ function Expertise() {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deleteexpertises/${id}`);
+      await axios.delete(`${API_URL}/deleteexpertises/${id}`);
       setExpertises((prev) => prev.filter((e) => e.id !== id));
     } catch (err: any) {
       console.log(err.response?.data || err);

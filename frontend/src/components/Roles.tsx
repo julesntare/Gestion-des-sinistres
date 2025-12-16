@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 interface Role {
   id: number
   nom: string
@@ -39,14 +41,14 @@ function Roles() {
 
   const fetchRoles = () => {
     axios
-      .get("http://localhost:3000/viewrole")
+      .get("${API_URL}/viewrole")
       .then((res) => setData(res.data))
       .catch((err) => console.log(err))
   }
 
   const handleDelete = async (id: number | string) => {
     try {
-      await axios.delete(`http://localhost:3000/deleterole/${id}`)
+      await axios.delete(`${API_URL}/deleterole/${id}`)
       setData((prev) => prev.filter((role) => role.id !== id))
     } catch (err) {
       console.log(err)
@@ -55,7 +57,7 @@ function Roles() {
 
   const handleAddRole = async () => {
     try {
-      await axios.post("http://localhost:3000/createrole", { nom: roleName })
+      await axios.post("${API_URL}/createrole", { nom: roleName })
       fetchRoles()
       setRoleName("")
       setShowAddModal(false)
@@ -67,7 +69,7 @@ function Roles() {
   const handleUpdateRole = async () => {
     if (!selectedRole) return
     try {
-      await axios.put(`http://localhost:3000/updaterole/${selectedRole.id}`, { nom: roleName })
+      await axios.put(`${API_URL}/updaterole/${selectedRole.id}`, { nom: roleName })
       fetchRoles()
       setSelectedRole(null)
       setRoleName("")

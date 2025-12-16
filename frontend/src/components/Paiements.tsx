@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 interface Paiement {
   id: number
   sinistre_id: number
@@ -58,20 +60,20 @@ function Paiements() {
   }, [])
 
   const fetchPaiements = () => {
-    axios.get("http://localhost:3000/viewpaiements")
+    axios.get("${API_URL}/viewpaiements")
       .then(res => setPaiements(res.data))
       .catch(err => console.log(err))
   }
 
   const fetchSinistres = () => {
-    axios.get("http://localhost:3000/viewsinistres")
+    axios.get("${API_URL}/viewsinistres")
       .then(res => setSinistres(res.data))
       .catch(err => console.log(err))
   }
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deletepaiements/${id}`)
+      await axios.delete(`${API_URL}/deletepaiements/${id}`)
       setPaiements(prev => prev.filter(p => p.id !== id))
     } catch (err: any) {
       console.log(err.response?.data || err)
@@ -80,7 +82,7 @@ function Paiements() {
 
   const handleAddPaiement = async () => {
     try {
-      await axios.post("http://localhost:3000/createpaiements", {
+      await axios.post("${API_URL}/createpaiements", {
         sinistre_id: sinistreId,
         montant,
         date_paiement: datePaiement,
@@ -98,7 +100,7 @@ function Paiements() {
   const handleUpdatePaiement = async () => {
     if (!selectedPaiement) return
     try {
-      await axios.put(`http://localhost:3000/updatepaiements/${selectedPaiement.id}`, {
+      await axios.put(`${API_URL}/updatepaiements/${selectedPaiement.id}`, {
         sinistre_id: sinistreId,
         montant,
         date_paiement: datePaiement,

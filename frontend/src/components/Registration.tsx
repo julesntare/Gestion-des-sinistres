@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import { Link, useNavigate } from "react-router-dom"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 function Registration() {
   const [name, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -17,7 +19,7 @@ function Registration() {
   // Fetch roles when component mounts
   useEffect(() => {
     axios
-      .get("http://localhost:3000/viewrole")
+      .get(`${API_URL}/viewrole`)
       .then((res) => setRoles(res.data))
       .catch((err) => console.error("Error fetching roles:", err))
   }, [])
@@ -31,7 +33,7 @@ function Registration() {
 
     setLoading(true)
     axios
-      .post("http://localhost:3000/register", {
+      .post(`${API_URL}/register`, {
         name,
         password,
         email,

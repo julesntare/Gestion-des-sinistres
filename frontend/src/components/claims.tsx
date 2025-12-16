@@ -366,6 +366,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"
+
 interface Sinistre {
   id: number
   utilisateur_id?: number
@@ -447,8 +449,8 @@ function Claims() {
 
   const fetchSinistres = (uid: string) => {
     const url = uid
-      ? `http://localhost:3000/viewsinistres/${uid}`
-      : `http://localhost:3000/viewsinistres`
+      ? `${API_URL}/viewsinistres/${uid}`
+      : `${API_URL}/viewsinistres`
     axios
       .get(url)
       .then((res) => setSinistres(res.data || []))
@@ -463,13 +465,13 @@ function Claims() {
       if (uid) {
         // try per-user endpoint first
         try {
-          const res = await axios.get(`http://localhost:3000/viewpolices/${uid}`)
+          const res = await axios.get(`${API_URL}/viewpolices/${uid}`)
           setPolices(res.data || [])
           return
         } catch (err) {
           // per-user path failed — try query param style
           try {
-            const res2 = await axios.get("http://localhost:3000/viewpolices", {
+            const res2 = await axios.get(`${API_URL}/viewpolices`, {
               params: { utilisateur_id: uid },
             })
             setPolices(res2.data || [])
@@ -481,7 +483,7 @@ function Claims() {
       }
 
       // Generic fetch (returns all policies). Filter locally if uid provided.
-      const resAll = await axios.get("http://localhost:3000/viewpolices")
+      const resAll = await axios.get(`${API_URL}/viewpolices`)
       const data: any[] = resAll.data || []
 
       if (uid) {
@@ -502,7 +504,7 @@ function Claims() {
 
   const handleAddSinistre = async () => {
     try {
-      await axios.post("http://localhost:3000/createsinistres", {
+      await axios.post(`${API_URL}/createsinistres`, {
         utilisateur_id: userId,
         police_id: Number(policeId),
         date_declaration: dateDeclaration,
@@ -543,7 +545,7 @@ function Claims() {
       formData.append("contenu_fichier", contenuFichier)
       formData.append("date_upload", dateUpload)
 
-      await axios.post("http://localhost:3000/createdocuments", formData, {
+      await axios.post(`${API_URL}/createdocuments`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
 

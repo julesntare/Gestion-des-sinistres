@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"
+
 function Home() {
   const navigate = useNavigate()
 
@@ -17,12 +19,12 @@ function Home() {
     const fetchData = async () => {
       try {
         // Fetch all sinistres
-        const resSinistres = await fetch("http://localhost:3000/viewsinistres")
+        const resSinistres = await fetch(`${API_URL}/viewsinistres`)
         const sinistres = await resSinistres.json()
         
 
         // ⚡️ If you have an experts endpoint, replace below with the correct one
-        const resUser = await fetch("http://localhost:3000/viewuser")
+        const resUser = await fetch(`${API_URL}/viewuser`)
         const utilisateurs = await resUser.json()
 
         const total = sinistres.length

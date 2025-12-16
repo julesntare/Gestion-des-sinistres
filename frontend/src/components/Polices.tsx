@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 interface Police {
   id: number
   numero_police: string
@@ -59,20 +61,20 @@ function Polices() {
   }, [])
 
   const fetchPolices = () => {
-    axios.get("http://localhost:3000/viewpolices")
+    axios.get("${API_URL}/viewpolices")
       .then(res => setPolices(res.data))
       .catch(err => console.log(err))
   }
 
   const fetchUsers = () => {
-    axios.get("http://localhost:3000/viewuser")
+    axios.get("${API_URL}/viewuser")
       .then(res => setUsers(res.data))
       .catch(err => console.log(err))
   }
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deletepolices/${id}`)
+      await axios.delete(`${API_URL}/deletepolices/${id}`)
       setPolices(prev => prev.filter(p => p.id !== id))
     } catch (err: any) {
       console.log(err.response?.data || err)
@@ -81,7 +83,7 @@ function Polices() {
 
   const handleAddPolice = async () => {
     try {
-      await axios.post("http://localhost:3000/createpolices", {
+      await axios.post("${API_URL}/createpolices", {
         numero_police: numeroPolice,
         utilisateur_id: utilisateurId,
         type,
@@ -100,7 +102,7 @@ function Polices() {
   const handleUpdatePolice = async () => {
     if (!selectedPolice) return
     try {
-      await axios.put(`http://localhost:3000/updatepolices/${selectedPolice.id}`, {
+      await axios.put(`${API_URL}/updatepolices/${selectedPolice.id}`, {
         numero_police: numeroPolice,
         utilisateur_id: utilisateurId,
         type,
@@ -379,7 +381,7 @@ export default Polices
 //   }, [])
 
 //   const fetchPolices = () => {
-//     axios.get("http://localhost:3000/viewpolices")
+//     axios.get("${API_URL}/viewpolices")
 //       .then(res => setPolices(res.data || []))
 //       .catch(err => {
 //         console.error("fetchPolices error:", err)
@@ -388,7 +390,7 @@ export default Polices
 //   }
 
 //   const fetchUsers = () => {
-//     axios.get("http://localhost:3000/viewuser")
+//     axios.get("${API_URL}/viewuser")
 //       .then(res => setUsers(res.data || []))
 //       .catch(err => {
 //         console.error("fetchUsers error:", err)
@@ -398,7 +400,7 @@ export default Polices
 
 //   const handleDelete = async (id: number) => {
 //     try {
-//       await axios.delete(`http://localhost:3000/deletepolices/${id}`)
+//       await axios.delete(`${API_URL}/deletepolices/${id}`)
 //       setPolices(prev => prev.filter(p => p.id !== id))
 //       setSuccessMessage("Police supprimée ✅")
 //       setTimeout(() => setSuccessMessage(""), 3000)
@@ -429,7 +431,7 @@ export default Polices
 //         statut,
 //       }
 
-//       const res = await axios.post("http://localhost:3000/createpolices", payload)
+//       const res = await axios.post("${API_URL}/createpolices", payload)
 //       // backend returns 201 with message — fetch and update UI
 //       fetchPolices()
 //       clearForm()
@@ -465,7 +467,7 @@ export default Polices
 //         statut,
 //       }
 
-//       await axios.put(`http://localhost:3000/updatepolices/${selectedPolice.id}`, payload)
+//       await axios.put(`${API_URL}/updatepolices/${selectedPolice.id}`, payload)
 //       fetchPolices()
 //       clearForm()
 //       setSelectedPolice(null)

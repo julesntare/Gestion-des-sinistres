@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 interface Document {
   id: number
   sinistre_id: number
@@ -76,28 +78,28 @@ function Documents() {
 
   const fetchDocuments = () => {
     axios
-      .get("http://localhost:3000/viewdocuments")
+      .get("${API_URL}/viewdocuments")
       .then((res) => setData(res.data))
       .catch((err) => console.log(err))
   }
 
   const fetchSinistres = () => {
     axios
-      .get("http://localhost:3000/viewsinistres")
+      .get("${API_URL}/viewsinistres")
       .then((res) => setSinistres(res.data))
       .catch((err) => console.log(err))
   }
 
   const fetchUsers = () => {
     axios
-      .get("http://localhost:3000/viewuser")
+      .get("${API_URL}/viewuser")
       .then((res) => setUsers(res.data.filter((u: User) => u.role_id === 8)))
       .catch((err) => console.log(err))
   }
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deletedocuments/${id}`)
+      await axios.delete(`${API_URL}/deletedocuments/${id}`)
       setData((prev) => prev.filter((doc) => doc.id !== id))
     } catch (err: any) {
       console.log(err.response?.data || err)
@@ -116,7 +118,7 @@ function Documents() {
       }
       formData.append("date_upload", dateUpload)
 
-      await axios.post("http://localhost:3000/createdocuments", formData, {
+      await axios.post("${API_URL}/createdocuments", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
 
@@ -142,7 +144,7 @@ function Documents() {
       formData.append("date_upload", dateUpload)
 
       await axios.put(
-        `http://localhost:3000/updatedocuments/${selectedDoc.id}`,
+        `${API_URL}/updatedocuments/${selectedDoc.id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       )
@@ -158,7 +160,7 @@ function Documents() {
 
   const handleDownload = async (id: number, nomFichier: string) => {
     try {
-      const res = await axios.get(`http://localhost:3000/download/${id}`, {
+      const res = await axios.get(`${API_URL}/download/${id}`, {
         responseType: "blob",
       })
 

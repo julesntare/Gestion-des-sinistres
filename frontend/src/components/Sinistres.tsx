@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 interface Sinistre {
   id: number
   Numero_Sinistre: string
@@ -74,26 +76,26 @@ function Sinistres() {
   }, [])
 
   const fetchSinistres = () => {
-    axios.get("http://localhost:3000/viewsinistres")
+    axios.get("${API_URL}/viewsinistres")
       .then(res => setSinistres(res.data))
       .catch(err => console.log(err))
   }
 
   const fetchUsers = () => {
-    axios.get("http://localhost:3000/viewuser")
+    axios.get("${API_URL}/viewuser")
       .then(res => setUsers(res.data))
       .catch(err => console.log(err))
   }
 
   const fetchPolices = () => {
-    axios.get("http://localhost:3000/viewpolices")
+    axios.get("${API_URL}/viewpolices")
       .then(res => setPolices(res.data))
       .catch(err => console.log(err))
   }
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deletesinistres/${id}`)
+      await axios.delete(`${API_URL}/deletesinistres/${id}`)
       setSinistres(prev => prev.filter(s => s.id !== id))
     } catch (err: any) {
       console.log(err.response?.data || err)
@@ -102,7 +104,7 @@ function Sinistres() {
 
   const handleAddSinistre = async () => {
     try {
-      await axios.post("http://localhost:3000/createsinistres", {
+      await axios.post("${API_URL}/createsinistres", {
         Numero_Sinistre: NumeroSinistre,
         utilisateur_id: utilisateurId,
         police_id: policeId,
@@ -125,7 +127,7 @@ function Sinistres() {
   const handleUpdateSinistre = async () => {
     if (!selectedSinistre) return
     try {
-      await axios.put(`http://localhost:3000/updatesinistres/${selectedSinistre.id}`, {
+      await axios.put(`${API_URL}/updatesinistres/${selectedSinistre.id}`, {
         Numero_Sinistre: NumeroSinistre,
         utilisateur_id: utilisateurId,
         police_id: policeId,

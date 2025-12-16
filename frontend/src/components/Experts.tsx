@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"
+
 interface Expert {
   id: number
   nom: string
@@ -55,7 +57,7 @@ function Experts() {
 
   const fetchExperts = () => {
     axios
-      .get("http://localhost:3000/viewexpert")
+      .get(`${API_URL}/viewexpert`)
       .then((res) => {
         const mapped: Expert[] = res.data.map((e: any) => ({
           id: e.id,
@@ -71,7 +73,7 @@ function Experts() {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deleteexpert/${id}`)
+      await axios.delete(`${API_URL}/deleteexpert/${id}`)
       setData((prev) => prev.filter((ex) => ex.id !== id))
     } catch (err: any) {
       console.log(err.response?.data || err)
@@ -80,7 +82,7 @@ function Experts() {
 
   const handleAddExpert = async () => {
     try {
-      await axios.post("http://localhost:3000/createexpert", {
+      await axios.post(`${API_URL}/createexpert`, {
         nom,
         specialite,
         email,
@@ -98,7 +100,7 @@ function Experts() {
     if (!selectedExpert) return
     try {
       await axios.put(
-        `http://localhost:3000/updateexpert/${selectedExpert.id}`,
+        `${API_URL}/updateexpert/${selectedExpert.id}`,
         {
           nom,
           specialite,

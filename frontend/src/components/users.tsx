@@ -3,6 +3,8 @@ import Topbar from "./topbar.tsx"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 interface User {
   id: number
   nom: string
@@ -56,7 +58,7 @@ function Users() {
 
   const fetchUsers = () => {
     axios
-      .get("http://localhost:3000/viewuser")
+      .get("${API_URL}/viewuser")
       .then((res) => {
         const mappedUsers: User[] = res.data.map((u: any) => ({
           id: u.id,
@@ -73,7 +75,7 @@ function Users() {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/deleteuser/${id}`)
+      await axios.delete(`${API_URL}/deleteuser/${id}`)
       setUsers((prev) => prev.filter((u) => u.id !== id))
     } catch (err: any) {
       console.log(err.response?.data || err)
@@ -82,7 +84,7 @@ function Users() {
 
   const handleAddUser = async () => {
     try {
-      await axios.post("http://localhost:3000/createuser", {
+      await axios.post("${API_URL}/createuser", {
         nom,
         email,
         telephone,
@@ -99,7 +101,7 @@ function Users() {
   const handleUpdateUser = async () => {
     if (!selectedUser) return
     try {
-      await axios.put(`http://localhost:3000/updateuser/${selectedUser.id}`, {
+      await axios.put(`${API_URL}/updateuser/${selectedUser.id}`, {
         nom,
         email,
         telephone,

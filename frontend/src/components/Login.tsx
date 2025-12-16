@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || "${API_URL}"
+
 function Login() {
   const [name, setUsername] = useState('')
   const [mot_de_passe, setPassword] = useState('')
@@ -12,7 +14,7 @@ function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await axios.post('http://localhost:3000/login', { name, mot_de_passe })
+      const res = await axios.post(`${API_URL}/login`, { name, mot_de_passe })
       localStorage.setItem("session", res.data.user.role_id)
       localStorage.setItem("user-id", res.data.user.id)
       const roleId = Number(localStorage.getItem("session"))
